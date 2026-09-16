@@ -15,7 +15,16 @@ set_target_properties(caipr PROPERTIES CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS O
 include(CTest)
 
 if(BUILD_TESTING)
-  add_test(NAME caipr.version COMMAND caipr --version)
+  add_test(
+    NAME caipr.version
+    COMMAND
+      "${CMAKE_COMMAND}"
+      "-DCAIPR_EXECUTABLE=$<TARGET_FILE:caipr>"
+      "-DCAIPR_ARGUMENTS=--version"
+      "-DCAIPR_EXPECTED_RESULT=0"
+      "-DCAIPR_EXPECTED_OUTPUT=caipr ${PROJECT_VERSION}"
+      -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/expect-command.cmake"
+  )
   add_test(
     NAME caipr.rejects-extra-args
     COMMAND
@@ -36,5 +45,4 @@ if(BUILD_TESTING)
       "-DCAIPR_EXPECTED_ERROR=caipr: unsupported option '--unknown'; usage: caipr [--version]"
       -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/expect-command.cmake"
   )
-  set_tests_properties(caipr.version PROPERTIES PASS_REGULAR_EXPRESSION "^caipr ${PROJECT_VERSION}")
 endif()

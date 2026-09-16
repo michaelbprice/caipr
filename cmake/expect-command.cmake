@@ -1,3 +1,13 @@
+# Runs a command and verifies its exit code plus optional output expectations.
+#
+# Required variables:
+# - CAIPR_EXECUTABLE: executable path to run
+# - CAIPR_EXPECTED_RESULT: expected process exit code
+#
+# Optional variables:
+# - CAIPR_ARGUMENTS: semicolon-separated list of command arguments
+# - CAIPR_EXPECTED_OUTPUT: expected stdout after trimming whitespace
+# - CAIPR_EXPECTED_ERROR: substring expected in stderr
 execute_process(
   COMMAND "${CAIPR_EXECUTABLE}" ${CAIPR_ARGUMENTS}
   RESULT_VARIABLE actual_result
@@ -14,12 +24,24 @@ if(NOT actual_result EQUAL "${CAIPR_EXPECTED_RESULT}")
   )
 endif()
 
-string(FIND "${actual_error}" "${CAIPR_EXPECTED_ERROR}" expected_error_position)
-if(expected_error_position EQUAL -1)
-  message(
-    FATAL_ERROR
-    "expected stderr to contain: ${CAIPR_EXPECTED_ERROR}\n"
-    "actual stderr: ${actual_error}"
-  )
+if(DEFINED CAIPR_EXPECTED_OUTPUT)
+  string(STRIP "${actual_output}" actual_output_stripped)
+  if(NOT actual_output_stripped STREQUAL "${CAIPR_EXPECTED_OUTPUT}")
+    message(
+      FATAL_ERROR
+      "expected stdout: ${CAIPR_EXPECTED_OUTPUT}\n"
+      "actual stdout: ${actual_output}"
+    )
+  endif()
 endif()
 
+if(DEFINED CAIPR_EXPECTED_ERROR)
+  string(FIND "${actual_error}" "${CAIPR_EXPECTED_ERROR}" expected_error_position)
+  if(expected_error_position EQUAL -1)
+    message(
+      FATAL_ERROR
+      "expected stderr to contain: ${CAIPR_EXPECTED_ERROR}\n"
+      "actual stderr: ${actual_error}"
+    )
+  endif()
+endif()
