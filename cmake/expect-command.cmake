@@ -17,6 +17,10 @@ if(NOT DEFINED CAIPR_EXPECTED_RESULT)
   message(FATAL_ERROR "CAIPR_EXPECTED_RESULT must be defined")
 endif()
 
+if(NOT CAIPR_EXPECTED_RESULT MATCHES "^[0-9]+$")
+  message(FATAL_ERROR "expected result must be numeric: ${CAIPR_EXPECTED_RESULT}")
+endif()
+
 if(DEFINED CAIPR_ARGUMENTS)
   string(REPLACE "|" ";" CAIPR_ARGUMENTS "${CAIPR_ARGUMENTS}")
 endif()
@@ -27,10 +31,6 @@ execute_process(
   OUTPUT_VARIABLE actual_output
   ERROR_VARIABLE actual_error
 )
-
-if(NOT CAIPR_EXPECTED_RESULT MATCHES "^[0-9]+$")
-  message(FATAL_ERROR "expected result must be numeric: ${CAIPR_EXPECTED_RESULT}")
-endif()
 
 if(NOT actual_result MATCHES "^[0-9]+$")
   message(
