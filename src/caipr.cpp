@@ -1,6 +1,10 @@
 #include <iostream>
 #include <string_view>
 
+#ifndef CAIPR_VERSION
+#error "CAIPR_VERSION must be defined"
+#endif
+
 namespace {
 
 constexpr std::string_view version{CAIPR_VERSION};
