@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.21)
 
 project(
   caipr
@@ -16,7 +16,25 @@ include(CTest)
 
 if(BUILD_TESTING)
   add_test(NAME caipr.version COMMAND caipr --version)
-  add_test(NAME caipr.rejects-extra-args COMMAND caipr --version extra)
+  add_test(
+    NAME caipr.rejects-extra-args
+    COMMAND
+      "${CMAKE_COMMAND}"
+      "-DCAIPR_EXECUTABLE=$<TARGET_FILE:caipr>"
+      "-DCAIPR_ARGUMENTS=--version;extra"
+      "-DCAIPR_EXPECTED_RESULT=2"
+      "-DCAIPR_EXPECTED_ERROR=caipr: expected at most one argument; usage: caipr [--version]"
+      -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/expect-command.cmake"
+  )
+  add_test(
+    NAME caipr.rejects-unknown-option
+    COMMAND
+      "${CMAKE_COMMAND}"
+      "-DCAIPR_EXECUTABLE=$<TARGET_FILE:caipr>"
+      "-DCAIPR_ARGUMENTS=--unknown"
+      "-DCAIPR_EXPECTED_RESULT=2"
+      "-DCAIPR_EXPECTED_ERROR=caipr: unsupported option '--unknown'; usage: caipr [--version]"
+      -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/expect-command.cmake"
+  )
   set_tests_properties(caipr.version PROPERTIES PASS_REGULAR_EXPRESSION "^caipr ${PROJECT_VERSION}")
-  set_tests_properties(caipr.rejects-extra-args PROPERTIES WILL_FAIL TRUE)
 endif()
