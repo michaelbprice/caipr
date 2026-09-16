@@ -8,9 +8,11 @@ project(
 )
 
 add_executable(caipr src/caipr.cpp)
-target_compile_features(caipr PRIVATE cxx_std_23)
 target_compile_definitions(caipr PRIVATE CAIPR_VERSION="${PROJECT_VERSION}")
-set_target_properties(caipr PROPERTIES CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
+set_target_properties(
+  caipr
+  PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF
+)
 
 include(CTest)
 
@@ -30,7 +32,7 @@ if(BUILD_TESTING)
     COMMAND
       "${CMAKE_COMMAND}"
       "-DCAIPR_EXECUTABLE=$<TARGET_FILE:caipr>"
-      "-DCAIPR_ARGUMENTS=--version;extra"
+      "-DCAIPR_ARGUMENTS=--version|extra"
       "-DCAIPR_EXPECTED_RESULT=2"
       "-DCAIPR_EXPECTED_ERROR=caipr: expected at most one argument; usage: caipr [--version]"
       -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/expect-command.cmake"
