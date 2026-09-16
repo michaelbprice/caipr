@@ -22,6 +22,14 @@ support C features that are not part of C++.
 See [docs/CODING_CONVENTIONS.md](docs/CODING_CONVENTIONS.md) for coding
 guidelines and [AGENTS.md](AGENTS.md) for AI contributor instructions.
 
+## Build and test
+
+```sh
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build
+```
+
 ## License
 
 No license is granted. See [LICENSE.md](LICENSE.md).
