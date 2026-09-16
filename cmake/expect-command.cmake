@@ -9,6 +9,14 @@
 #   semicolon list expansion in -D values
 # - CAIPR_EXPECTED_OUTPUT: expected stdout after trimming whitespace
 # - CAIPR_EXPECTED_ERROR: substring expected in stderr
+if(NOT DEFINED CAIPR_EXECUTABLE)
+  message(FATAL_ERROR "CAIPR_EXECUTABLE must be defined")
+endif()
+
+if(NOT DEFINED CAIPR_EXPECTED_RESULT)
+  message(FATAL_ERROR "CAIPR_EXPECTED_RESULT must be defined")
+endif()
+
 if(DEFINED CAIPR_ARGUMENTS)
   string(REPLACE "|" ";" CAIPR_ARGUMENTS "${CAIPR_ARGUMENTS}")
 endif()
