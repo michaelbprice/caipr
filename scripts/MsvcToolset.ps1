@@ -21,7 +21,11 @@ function Assert-WindowsHost {
     [CmdletBinding()]
     param()
 
-    if ($env:OS -ne 'Windows_NT') {
+    # Windows PowerShell only runs on Windows and does not define $IsWindows,
+    # which PowerShell Core provides on every platform.
+    $onWindows = $PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows
+
+    if (-not $onWindows) {
         throw 'The MSVC toolset scripts require Windows.'
     }
 }
