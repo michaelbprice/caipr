@@ -1,0 +1,177 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "BUILD_TESTING": "ON"
+      }
+    },
+    {
+      "name": "linux-clang",
+      "displayName": "Linux Clang",
+      "description": "Configure with Clang and Ninja Multi-Config on Linux",
+      "inherits": "base",
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "macos-clang",
+      "displayName": "macOS Clang",
+      "description": "Configure with Clang and Ninja Multi-Config on macOS",
+      "inherits": "base",
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "windows-msvc",
+      "hidden": true,
+      "description": "Shared MSVC settings; run from a Visual Studio developer environment",
+      "inherits": "base",
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "cl"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-msvc-x64",
+      "displayName": "Windows MSVC x64",
+      "description": "Configure with MSVC and Ninja Multi-Config from an x64 developer environment",
+      "inherits": "windows-msvc"
+    },
+    {
+      "name": "windows-msvc-arm64",
+      "displayName": "Windows MSVC ARM64",
+      "description": "Configure with MSVC and Ninja Multi-Config from an ARM64 developer environment",
+      "inherits": "windows-msvc"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-clang-debug",
+      "configurePreset": "linux-clang",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux-clang-release",
+      "configurePreset": "linux-clang",
+      "configuration": "Release"
+    },
+    {
+      "name": "macos-clang-debug",
+      "configurePreset": "macos-clang",
+      "configuration": "Debug"
+    },
+    {
+      "name": "macos-clang-release",
+      "configurePreset": "macos-clang",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-x64-debug",
+      "configurePreset": "windows-msvc-x64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-msvc-x64-release",
+      "configurePreset": "windows-msvc-x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-arm64-debug",
+      "configurePreset": "windows-msvc-arm64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-msvc-arm64-release",
+      "configurePreset": "windows-msvc-arm64",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-base",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "stopOnFailure": false
+      }
+    },
+    {
+      "name": "linux-clang-debug",
+      "inherits": "test-base",
+      "configurePreset": "linux-clang",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux-clang-release",
+      "inherits": "test-base",
+      "configurePreset": "linux-clang",
+      "configuration": "Release"
+    },
+    {
+      "name": "macos-clang-debug",
+      "inherits": "test-base",
+      "configurePreset": "macos-clang",
+      "configuration": "Debug"
+    },
+    {
+      "name": "macos-clang-release",
+      "inherits": "test-base",
+      "configurePreset": "macos-clang",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-x64-debug",
+      "inherits": "test-base",
+      "configurePreset": "windows-msvc-x64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-msvc-x64-release",
+      "inherits": "test-base",
+      "configurePreset": "windows-msvc-x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-arm64-debug",
+      "inherits": "test-base",
+      "configurePreset": "windows-msvc-arm64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-msvc-arm64-release",
+      "inherits": "test-base",
+      "configurePreset": "windows-msvc-arm64",
+      "configuration": "Release"
+    }
+  ]
+}
