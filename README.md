@@ -50,6 +50,34 @@ toolset and target architecture. Continuous integration builds the Windows
 configurations with the latest MSVC preview toolset, running the x64
 configurations on x64 runners and the ARM64 configurations on ARM64 runners.
 
+## Windows toolset scripts
+
+The MSVC toolset scripts in [`scripts`](scripts) set up the same environment
+that continuous integration uses, so a Windows developer machine can be kept on
+the latest MSVC preview toolset with the same commands. Each script takes
+`-InstallPath` so a non-default installation can be used, and `Get-Help`
+describes the remaining parameters.
+
+```pwsh
+./scripts/Install-MsvcPreview.ps1
+./scripts/Test-MsvcPreview.ps1
+./scripts/Enter-MsvcEnvironment.ps1
+```
+
+| Script                      | Purpose                                                            |
+| --------------------------- | ------------------------------------------------------------------ |
+| `Install-MsvcPreview.ps1`   | Installs or updates the latest preview MSVC toolset                |
+| `Test-MsvcPreview.ps1`      | Fails unless the installation is a preview toolset                 |
+| `Enter-MsvcEnvironment.ps1` | Applies the developer environment and Ninja to the current session |
+
+`Enter-MsvcEnvironment.ps1` updates the environment of the process that runs
+it, so the prompt that ran it can configure and build directly:
+
+```pwsh
+./scripts/Enter-MsvcEnvironment.ps1 -Architecture arm64
+cmake --preset windows-msvc-arm64
+```
+
 ## License
 
 No license is granted. See [LICENSE.md](LICENSE.md).

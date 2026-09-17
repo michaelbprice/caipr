@@ -48,26 +48,22 @@ jobs:
             os: windows-latest
             preset: windows-msvc-x64
             config: debug
-            vc_tools_component: Microsoft.VisualStudio.Component.VC.Tools.x86.x64
-            vcvars_arch: x64
+            arch: x64
           - name: Windows MSVC x64
             os: windows-latest
             preset: windows-msvc-x64
             config: release
-            vc_tools_component: Microsoft.VisualStudio.Component.VC.Tools.x86.x64
-            vcvars_arch: x64
+            arch: x64
           - name: Windows MSVC ARM64
             os: windows-11-arm
             preset: windows-msvc-arm64
             config: debug
-            vc_tools_component: Microsoft.VisualStudio.Component.VC.Tools.ARM64
-            vcvars_arch: arm64
+            arch: arm64
           - name: Windows MSVC ARM64
             os: windows-11-arm
             preset: windows-msvc-arm64
             config: release
-            vc_tools_component: Microsoft.VisualStudio.Component.VC.Tools.ARM64
-            vcvars_arch: arm64
+            arch: arm64
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -83,83 +79,26 @@ jobs:
       - name: Update runner to the latest MSVC preview toolset
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $ProgressPreference = 'SilentlyContinue'
-          $bootstrapper = Join-Path $env:RUNNER_TEMP 'vs_BuildTools.exe'
-          Invoke-WebRequest -Uri $env:VS_PREVIEW_BOOTSTRAPPER_URL -OutFile $bootstrapper
-          # Running the preview bootstrapper against the install path installs
-          # the toolset, or updates it when the runner image already has it.
-          $arguments = @(
-            '--quiet', '--wait', '--norestart', '--nocache',
-            '--channelUri', $env:VS_PREVIEW_CHANNEL_URI,
-            '--installPath', $env:VS_PREVIEW_INSTALL_PATH,
-            '--add', 'Microsoft.VisualStudio.Workload.VCTools',
-            '--add', 'Microsoft.VisualStudio.Component.VC.CMake.Project',
-            '--add', '${{ matrix.vc_tools_component }}',
-            '--includeRecommended'
-          )
-          $install = Start-Process -FilePath $bootstrapper -ArgumentList $arguments -Wait -PassThru
-          # 3010 means the install succeeded but wants a reboot we do not need.
-          if ($install.ExitCode -ne 0 -and $install.ExitCode -ne 3010) {
-            throw "Visual Studio preview install failed with exit code $($install.ExitCode)"
-          }
+        run: >-
+          ./scripts/Install-MsvcPreview.ps1
+          -Architecture ${{ matrix.arch }}
+          -InstallPath $env:VS_PREVIEW_INSTALL_PATH
+          -BootstrapperUrl $env:VS_PREVIEW_BOOTSTRAPPER_URL
+          -ChannelUri $env:VS_PREVIEW_CHANNEL_URI
 
       - name: Verify the MSVC preview toolset
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
-          $instance = & $vswhere -path $env:VS_PREVIEW_INSTALL_PATH -format json |
-            ConvertFrom-Json |
-            Select-Object -First 1
-          if (-not $instance) {
-            throw "No Visual Studio instance found at $env:VS_PREVIEW_INSTALL_PATH"
-          }
-          if (-not $instance.isPrerelease) {
-            throw "Expected a preview toolset, found $($instance.displayName) $($instance.installationVersion)"
-          }
-          Write-Host "Using $($instance.displayName) $($instance.installationVersion)"
+        run: ./scripts/Test-MsvcPreview.ps1 -InstallPath $env:VS_PREVIEW_INSTALL_PATH
 
       - name: Set up the MSVC developer environment
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $vcvarsall = Join-Path $env:VS_PREVIEW_INSTALL_PATH 'VC\Auxiliary\Build\vcvarsall.bat'
-          if (-not (Test-Path $vcvarsall)) {
-            throw "vcvarsall.bat not found at $vcvarsall"
-          }
-          function Get-EnvironmentTable($lines) {
-            $table = @{}
-            foreach ($line in $lines) {
-              if ($line -match '^([^=]+)=(.*)$') {
-                $table[$Matches[1]] = $Matches[2]
-              }
-            }
-            return $table
-          }
-          $before = Get-EnvironmentTable (cmd /c 'set')
-          $after = Get-EnvironmentTable (cmd /c "`"$vcvarsall`" ${{ matrix.vcvars_arch }} >nul && set")
-          if ($LASTEXITCODE -ne 0) {
-            throw "vcvarsall.bat ${{ matrix.vcvars_arch }} failed with exit code $LASTEXITCODE"
-          }
-          foreach ($name in $after.Keys) {
-            # Names with parentheses are not valid environment file entries.
-            if ($name -match '[()]') {
-              continue
-            }
-            if ($before[$name] -ne $after[$name]) {
-              "$name=$($after[$name])" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-            }
-          }
-          # The C++ CMake tools component ships the matching Ninja build.
-          $ninjaDirectory = Join-Path $env:VS_PREVIEW_INSTALL_PATH 'Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja'
-          if (-not (Test-Path (Join-Path $ninjaDirectory 'ninja.exe'))) {
-            throw "ninja.exe not found in $ninjaDirectory"
-          }
-          $ninjaDirectory | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+        run: >-
+          ./scripts/Enter-MsvcEnvironment.ps1
+          -Architecture ${{ matrix.arch }}
+          -InstallPath $env:VS_PREVIEW_INSTALL_PATH
+          -GitHubEnvironment
 
       - name: Configure
         run: cmake --preset ${{ matrix.preset }}
