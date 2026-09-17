@@ -82,14 +82,14 @@ jobs:
         run: >-
           ./scripts/Install-MsvcPreview.ps1
           -Architecture ${{ matrix.arch }}
-          -InstallPath $env:VS_PREVIEW_INSTALL_PATH
-          -BootstrapperUrl $env:VS_PREVIEW_BOOTSTRAPPER_URL
-          -ChannelUri $env:VS_PREVIEW_CHANNEL_URI
+          -InstallPath "$env:VS_PREVIEW_INSTALL_PATH"
+          -BootstrapperUrl "$env:VS_PREVIEW_BOOTSTRAPPER_URL"
+          -ChannelUri "$env:VS_PREVIEW_CHANNEL_URI"
 
       - name: Verify the MSVC preview toolset
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./scripts/Test-MsvcPreview.ps1 -InstallPath $env:VS_PREVIEW_INSTALL_PATH
+        run: ./scripts/Test-MsvcPreview.ps1 -InstallPath "$env:VS_PREVIEW_INSTALL_PATH"
 
       - name: Set up the MSVC developer environment
         if: runner.os == 'Windows'
@@ -97,7 +97,7 @@ jobs:
         run: >-
           ./scripts/Enter-MsvcEnvironment.ps1
           -Architecture ${{ matrix.arch }}
-          -InstallPath $env:VS_PREVIEW_INSTALL_PATH
+          -InstallPath "$env:VS_PREVIEW_INSTALL_PATH"
           -GitHubEnvironment
 
       - name: Configure

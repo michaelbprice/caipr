@@ -88,7 +88,12 @@ $arguments = @(
 )
 
 Write-Information "Installing $vcToolsComponent into $InstallPath"
-$install = Start-Process -FilePath $bootstrapper -ArgumentList $arguments -Wait -PassThru
+try {
+    $install = Start-Process -FilePath $bootstrapper -ArgumentList $arguments -Wait -PassThru
+}
+finally {
+    Remove-Item -LiteralPath $bootstrapper -Force -ErrorAction SilentlyContinue
+}
 
 # 3010 means the install succeeded but wants a reboot that is not needed to
 # build from the command line.
