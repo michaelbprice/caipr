@@ -30,7 +30,7 @@ $InformationPreference = 'Continue'
 
 Assert-WindowsHost
 
-$instance = Get-MsvcInstance -InstallPath $InstallPath
+$instance = Get-MsvcInstance -InstallPath $InstallPath -Prerelease
 
 if (-not $instance.isPrerelease) {
     throw "Expected a preview toolset, found $($instance.displayName) $($instance.installationVersion)"

@@ -23,7 +23,7 @@ function Assert-WindowsHost {
 
     # Windows PowerShell only runs on Windows and does not define $IsWindows,
     # which PowerShell Core provides on every platform.
-    $onWindows = $PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows
+    $onWindows = if ($PSVersionTable.PSEdition -eq 'Desktop') { $true } else { $IsWindows }
 
     if (-not $onWindows) {
         throw 'The MSVC toolset scripts require Windows.'
@@ -73,16 +73,26 @@ function Get-MsvcInstance {
 
     .PARAMETER InstallPath
         Directory that holds the installation to describe.
+
+    .PARAMETER Prerelease
+        Also consider prerelease installations, which vswhere skips by default.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [string] $InstallPath
+        [string] $InstallPath,
+
+        [switch] $Prerelease
     )
 
+    $vswhereArguments = @('-path', $InstallPath, '-format', 'json')
+    if ($Prerelease) {
+        $vswhereArguments += '-prerelease'
+    }
+
     $vswhere = Get-VswherePath
-    $instance = & $vswhere -path $InstallPath -prerelease -format json |
+    $instance = & $vswhere @vswhereArguments |
         ConvertFrom-Json |
         Select-Object -First 1
 
