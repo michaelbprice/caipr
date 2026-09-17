@@ -46,19 +46,30 @@
     },
     {
       "name": "windows-msvc",
-      "displayName": "Windows MSVC",
-      "description": "Configure with MSVC and the Visual Studio generator",
+      "hidden": true,
+      "description": "Shared MSVC settings; run from a Visual Studio developer environment",
       "inherits": "base",
-      "generator": "Visual Studio 17 2022",
-      "architecture": {
-        "value": "x64",
-        "strategy": "set"
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "cl"
       },
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       }
+    },
+    {
+      "name": "windows-msvc-x64",
+      "displayName": "Windows MSVC x64",
+      "description": "Configure with MSVC and Ninja Multi-Config from an x64 developer environment",
+      "inherits": "windows-msvc"
+    },
+    {
+      "name": "windows-msvc-arm64",
+      "displayName": "Windows MSVC ARM64",
+      "description": "Configure with MSVC and Ninja Multi-Config from an ARM64 developer environment",
+      "inherits": "windows-msvc"
     }
   ],
   "buildPresets": [
@@ -83,13 +94,23 @@
       "configuration": "Release"
     },
     {
-      "name": "windows-msvc-debug",
-      "configurePreset": "windows-msvc",
+      "name": "windows-msvc-x64-debug",
+      "configurePreset": "windows-msvc-x64",
       "configuration": "Debug"
     },
     {
-      "name": "windows-msvc-release",
-      "configurePreset": "windows-msvc",
+      "name": "windows-msvc-x64-release",
+      "configurePreset": "windows-msvc-x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-arm64-debug",
+      "configurePreset": "windows-msvc-arm64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-msvc-arm64-release",
+      "configurePreset": "windows-msvc-arm64",
       "configuration": "Release"
     }
   ],
@@ -129,15 +150,27 @@
       "configuration": "Release"
     },
     {
-      "name": "windows-msvc-debug",
+      "name": "windows-msvc-x64-debug",
       "inherits": "test-base",
-      "configurePreset": "windows-msvc",
+      "configurePreset": "windows-msvc-x64",
       "configuration": "Debug"
     },
     {
-      "name": "windows-msvc-release",
+      "name": "windows-msvc-x64-release",
       "inherits": "test-base",
-      "configurePreset": "windows-msvc",
+      "configurePreset": "windows-msvc-x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-arm64-debug",
+      "inherits": "test-base",
+      "configurePreset": "windows-msvc-arm64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-msvc-arm64-release",
+      "inherits": "test-base",
+      "configurePreset": "windows-msvc-arm64",
       "configuration": "Release"
     }
   ]
