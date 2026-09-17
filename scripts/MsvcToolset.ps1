@@ -141,6 +141,11 @@ function Get-VcVarsEnvironment {
     .SYNOPSIS
         Returns the environment variables that vcvarsall.bat adds or changes.
 
+    .DESCRIPTION
+        Compares the environment before and after running vcvarsall.bat and
+        returns the entries it adds or changes. Removed entries are not
+        reported because vcvarsall.bat only adds to the environment.
+
     .PARAMETER InstallPath
         Directory that holds the Visual Studio installation to use.
 
