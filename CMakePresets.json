@@ -47,8 +47,13 @@
     {
       "name": "windows-msvc",
       "displayName": "Windows MSVC",
-      "description": "Configure with MSVC and the default Visual Studio generator",
+      "description": "Configure with MSVC and the Visual Studio generator",
       "inherits": "base",
+      "generator": "Visual Studio 17 2022",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      },
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",

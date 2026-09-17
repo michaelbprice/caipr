@@ -24,7 +24,9 @@ guidelines and [AGENTS.md](AGENTS.md) for AI contributor instructions.
 
 ## Build and test
 
-Use the CMake presets so local builds match continuous integration.
+Use the CMake presets so local builds match continuous integration. The example
+below uses the Linux presets; substitute the presets for your platform from the
+table that follows.
 
 ```sh
 cmake --preset linux-clang
@@ -40,8 +42,8 @@ Presets are available for each supported platform and compiler:
 | macOS    | `macos-clang`    | `macos-clang-debug`, `macos-clang-release`     |
 | Windows  | `windows-msvc`   | `windows-msvc-debug`, `windows-msvc-release`   |
 
-The Linux and macOS presets require Ninja; the Windows preset uses the default
-Visual Studio generator.
+The Linux and macOS presets require Ninja; the Windows preset uses the Visual
+Studio 2022 generator targeting x64.
 
 ## License
 
