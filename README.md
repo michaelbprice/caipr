@@ -24,11 +24,24 @@ guidelines and [AGENTS.md](AGENTS.md) for AI contributor instructions.
 
 ## Build and test
 
+Use the CMake presets so local builds match continuous integration.
+
 ```sh
-cmake -S . -B build
-cmake --build build --config Debug
-ctest --test-dir build -C Debug
+cmake --preset linux-clang
+cmake --build --preset linux-clang-debug
+ctest --preset linux-clang-debug
 ```
+
+Presets are available for each supported platform and compiler:
+
+| Platform | Configure preset | Build and test presets                         |
+| -------- | ---------------- | ---------------------------------------------- |
+| Linux    | `linux-clang`    | `linux-clang-debug`, `linux-clang-release`     |
+| macOS    | `macos-clang`    | `macos-clang-debug`, `macos-clang-release`     |
+| Windows  | `windows-msvc`   | `windows-msvc-debug`, `windows-msvc-release`   |
+
+The Linux and macOS presets require Ninja; the Windows preset uses the default
+Visual Studio generator.
 
 ## License
 

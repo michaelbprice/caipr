@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.name }} (${{ matrix.config }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux Clang
+            os: ubuntu-latest
+            preset: linux-clang
+            config: debug
+          - name: Linux Clang
+            os: ubuntu-latest
+            preset: linux-clang
+            config: release
+          - name: macOS Clang
+            os: macos-latest
+            preset: macos-clang
+            config: debug
+          - name: macOS Clang
+            os: macos-latest
+            preset: macos-clang
+            config: release
+          - name: Windows MSVC
+            os: windows-latest
+            preset: windows-msvc
+            config: debug
+          - name: Windows MSVC
+            os: windows-latest
+            preset: windows-msvc
+            config: release
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Ninja
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install --yes ninja-build
+
+      - name: Install Ninja
+        if: runner.os == 'macOS'
+        run: brew list ninja || brew install ninja
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}-${{ matrix.config }}
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }}-${{ matrix.config }}
