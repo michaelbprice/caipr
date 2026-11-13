@@ -2,24 +2,28 @@ FROM ubuntu:24.04
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        build-essential \
+        binutils \
         ca-certificates \
         cmake \
-        git \
-        gnupg \
-        lsb-release \
-        ninja-build \
-        software-properties-common \
-        wget \
-    && wget -O /tmp/llvm.sh https://apt.llvm.org/llvm.sh \
-    && chmod +x /tmp/llvm.sh \
-    && /tmp/llvm.sh \
-    && clang_version="$(find /usr/bin -maxdepth 1 -name 'clang-[0-9]*' -printf '%f\n' | sort -V | tail -n 1 | cut -d- -f2)" \
-    && ln -s "/usr/bin/clang-${clang_version}" /usr/local/bin/clang \
-    && ln -s "/usr/bin/clang++-${clang_version}" /usr/local/bin/clang++ \
-    && rm /tmp/llvm.sh \
+        curl \
+        libc6-dev \
+        libstdc++-14-dev \
+        make \
+        xz-utils \
+    && llvm_version="$(curl -fsSL https://api.github.com/repos/llvm/llvm-project/releases/latest | sed -n 's/.*"tag_name":[[:space:]]*"llvmorg-\([^"]*\)".*/\1/p')" \
+    && test -n "$llvm_version" \
+    && case "$(dpkg --print-architecture)" in \
+        amd64) llvm_arch=X64 ;; \
+        arm64) llvm_arch=ARM64 ;; \
+        *) echo "Unsupported architecture: $(dpkg --print-architecture)" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${llvm_version}/LLVM-${llvm_version}-Linux-${llvm_arch}.tar.xz" -o /tmp/llvm.tar.xz \
+    && mkdir -p /opt/llvm \
+    && tar -xJf /tmp/llvm.tar.xz --strip-components=1 -C /opt/llvm \
+    && rm /tmp/llvm.tar.xz \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ENV CC=clang \
+ENV PATH="/opt/llvm/bin:${PATH}" \
+    CC=clang \
     CXX=clang++
