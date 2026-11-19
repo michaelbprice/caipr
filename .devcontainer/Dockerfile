@@ -4,12 +4,22 @@ RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         binutils \
         ca-certificates \
-        cmake \
         curl \
+        gpg \
         libc6-dev \
         libstdc++-14-dev \
         make \
         xz-utils \
+    && curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc \
+        | gpg --dearmor -o /usr/share/keyrings/kitware-archive-keyring.gpg \
+    && printf 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ %s main\n' \
+        "$( . /etc/os-release && printf '%s' "$VERSION_CODENAME" )" \
+        > /etc/apt/sources.list.d/kitware.list \
+    && apt-get update \
+    && rm /usr/share/keyrings/kitware-archive-keyring.gpg \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        kitware-archive-keyring \
+        cmake \
     && llvm_version="$(curl -fsSL https://api.github.com/repos/llvm/llvm-project/releases/latest | sed -n 's/.*"tag_name":[[:space:]]*"llvmorg-\([^"]*\)".*/\1/p')" \
     && test -n "$llvm_version" \
     && case "$(dpkg --print-architecture)" in \
