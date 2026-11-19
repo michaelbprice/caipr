@@ -1,0 +1,6 @@
+{
+  "name": "caipr (Ubuntu + Clang/LLVM)",
+  "build": {
+    "dockerfile": "Dockerfile"
+  }
+}
